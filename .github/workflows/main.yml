@@ -17,14 +17,27 @@ on:
         description: 'Deploy to stage'
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set dynamic matrix
+        id: set-matrix
+        run: |
+          MATRIX=()
+          if [ "${{ github.event.inputs.dev }}" == "true" ]; then MATRIX+=('"dev"'); fi
+          if [ "${{ github.event.inputs.test }}" == "true" ]; then MATRIX+=('"test"'); fi
+          if [ "${{ github.event.inputs.stage }}" == "true" ]; then MATRIX+=('"stage"'); fi
+          echo "matrix=[${MATRIX[*]}]" >> $GITHUB_ENV
+        shell: bash
+
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: ['dev', 'test', 'stage']
+        env: ${{ fromJSON(needs.set-matrix.outputs.matrix) }}
     steps:
       - name: Run the build
         run: |
-          echo "Running for environment dev : ${{ toJson(contains(github.event.inputs.dev, 'true') && 'dev' || '') }} "
-          echo "Running for environment test : ${{ toJson(contains(github.event.inputs.test, 'true') && 'test' || '') }} "
-          echo "Running for environment stage : ${{ toJson(contains(github.event.inputs.stage, 'true') && 'stage' || '') }} "
+          echo "Running for environment: ${{ matrix.env }}"
