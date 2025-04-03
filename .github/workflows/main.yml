@@ -17,4 +17,11 @@ on:
         description: 'Deploy to stage'
 jobs:
   build:
+    strategy:
+      matrix:
+        env: [dev, test, stage]
     runs-on: ubuntu-latest
+    steps:
+      - name: Run the build
+        run: |
+          echo ${{matrix.env}}
