@@ -1,0 +1,20 @@
+name: Matrix based
+
+on:
+  workflow_dispatch: 
+    inputs:
+      dev:
+        default: false
+        type: boolean
+        description: 'Deploy to dev'
+      test:
+        default: false
+        type: boolean
+        description: 'Deploy to test'
+      stage:
+        default: false
+        type: boolean
+        description: 'Deploy to stage'
+jobs:
+  build:
+    runs-on: ubuntu-latest
