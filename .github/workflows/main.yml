@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: ${{ fromJSON('["dev", "test", "stage"]') 
-          | map(e => (github.event.inputs[e] == 'true') && e) 
-          | filter(e => e) }}
+        env: ['dev', 'test', 'stage']
     steps:
       - name: Run the build
         run: |
-          echo "Running for environment: ${{ matrix.env }}"
+          echo "Running for environment dev : ${{ toJson(contains(github.event.inputs.dev, 'true') && 'dev' || '') }} "
+          echo "Running for environment test : ${{ toJson(contains(github.event.inputs.test, 'true') && 'test' || '') }} "
+          echo "Running for environment stage : ${{ toJson(contains(github.event.inputs.stage, 'true') && 'stage' || '') }} "
