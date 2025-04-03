@@ -17,11 +17,32 @@ on:
         description: 'Deploy to stage'
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      env_matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set Matrix
+        id: set-matrix
+        run: |
+          MATRIX=()
+          if [ "${{ github.event.inputs.dev }}" == "true" ]; then
+            MATRIX+=dev
+          fi
+          if [ "${{ github.event.inputs.test }}" == "true" ]; then
+            MATRIX+=test
+          fi
+          if [ "${{ github.event.inputs.stage }}" == "true" ]; then
+            MATRIX+=stage
+          fi
+          echo "Matrix environments: ${MATRIX[@]}"
+          echo "matrix=$(jq -c -n --argjson arr "$(printf '%s\n' "${MATRIX[@]}" | jq -R . | jq -s .)" '{"env": $arr}')" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: set-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        env: [dev, test, stage]
+      matrix: ${{ fromJson(needs.set-matrix.outputs.env_matrix) }}
     steps:
       - name: Run the build
         run: |
