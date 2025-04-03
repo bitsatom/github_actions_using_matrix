@@ -15,13 +15,16 @@ on:
         default: false
         type: boolean
         description: 'Deploy to stage'
+
 jobs:
   build:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        env: [dev, test, stage]
-    runs-on: ubuntu-latest
+        env: ${{ toJson(contains(github.event.inputs.dev, 'true') && 'dev' || '') }}
+             ${{ toJson(contains(github.event.inputs.test, 'true') && 'test' || '') }}
+             ${{ toJson(contains(github.event.inputs.stage, 'true') && 'stage' || '') }}
     steps:
       - name: Run the build
         run: |
-          echo ${{matrix.env}}
+          echo "Running for environment: ${{ matrix.env }}"
