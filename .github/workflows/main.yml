@@ -27,16 +27,20 @@ jobs:
         run: |
           MATRIX=()
           if [ "${{ github.event.inputs.dev }}" == "true" ]; then
-            MATRIX+=dev
+            MATRIX+=("\"dev\"")
           fi
           if [ "${{ github.event.inputs.test }}" == "true" ]; then
-            MATRIX+=test
+            MATRIX+=("\"test\"")
           fi
           if [ "${{ github.event.inputs.stage }}" == "true" ]; then
-            MATRIX+=stage
+            MATRIX+=("\"stage\"")
           fi
-          echo "Matrix environments: ${MATRIX[@]}"
-          echo "matrix=$(jq -c -n --argjson arr "$(printf '%s\n' "${MATRIX[@]}" | jq -R . | jq -s .)" '{"env": $arr}')" >> "$GITHUB_OUTPUT"
+          
+          # Convert array to JSON format
+          MATRIX_JSON="[$(IFS=,; echo "${MATRIX[*]}")]"
+          
+          echo "Matrix environments: $MATRIX_JSON"
+          echo "matrix={\"env\": $MATRIX_JSON}" >> "$GITHUB_OUTPUT"
 
   build:
     needs: set-matrix
